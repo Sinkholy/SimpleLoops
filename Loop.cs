@@ -8,6 +8,10 @@ namespace SimpleLoops
 		{
 			return new ForLoop(iterations);
 		}
+		public static WhileLoop While(Func<bool> condition)
+		{
+			return new WhileLoop(condition);
+		}
 
 		public class ForLoop
 		{
@@ -30,6 +34,24 @@ namespace SimpleLoops
 			public void Operation(Action operation)
 			{
 				for (; currentIteration < iterations; currentIteration++)
+				{
+					operation();
+				}
+			}
+		}
+		public class WhileLoop
+		{
+			readonly Func<bool> condition;
+
+			public WhileLoop(Func<bool> condition)
+			{
+				this.condition = condition;
+			}
+
+			public void Operation(Action operation)
+			{
+				bool conditionMet = condition();
+				while (conditionMet)
 				{
 					operation();
 				}
