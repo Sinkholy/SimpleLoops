@@ -4,51 +4,75 @@ namespace SimpleLoops
 {
 	public class Loop
 	{
-		public static ForLoop Repeat(int iterations)
+		public static ConditionSelector Repeat(Action operation)
 		{
-			return new ForLoop(iterations);
+			return new ConditionSelector(operation);
 		}
-		public static WhileLoop While(Func<bool> condition)
+		public static ConditionSelector Repeat(Action<int> operation)
 		{
-			return new WhileLoop(condition);
+			return new ConditionSelector(operation);
 		}
 
-		public class ForLoop
+		public class ConditionSelector
 		{
-			readonly int iterations;
-			int currentIteration;
+			readonly bool shouldProvideIndex;
+			readonly Action operation;
+			readonly Action<int> operationWithIndex;
 
-			public ForLoop(int iterations)
+			internal ConditionSelector(Action operation)
 			{
-				this.iterations = iterations;
-				currentIteration = 0;
+				shouldProvideIndex = false;
+				this.operation = operation;
+			}
+			internal ConditionSelector(Action<int> operation)
+			{
+				shouldProvideIndex = true;
+				operationWithIndex = operation;
 			}
 
-			public void Operation(Action<int> operation)
+			public void For(int iterations)
 			{
-				for (; currentIteration < iterations; currentIteration++)
+				if (shouldProvideIndex)
+				{
+					ForLoop.ExecuteWithProvidingIndexer(iterations, operationWithIndex);
+				}
+				else
+				{
+					ForLoop.Execute(iterations, operation);
+				}
+			}
+			public void While(Func<bool> condition)
+			{
+				if (shouldProvideIndex)
+				{
+					WhileLoop.ExecuteWithProvidingIndexer(condition, operationWithIndex);
+				}
+				else
+				{
+					WhileLoop.Execute(condition, operation);
+				}
+			}
+		}
+		internal static class ForLoop
+		{
+			internal static void ExecuteWithProvidingIndexer(int iterations, Action<int> operation)
+			{
+				for (int currentIteration = 0; currentIteration < iterations; currentIteration++)
 				{
 					operation(currentIteration);
 				}
 			}
-			public void Operation(Action operation)
+			internal static void Execute(int iterations, Action operation)
 			{
-				for (; currentIteration < iterations; currentIteration++)
+				for (int currentIteration = 0; currentIteration < iterations; currentIteration++)
 				{
 					operation();
 				}
 			}
 		}
-		public class WhileLoop
+		internal static class WhileLoop
 		{
-			readonly Func<bool> condition;
-
-			public WhileLoop(Func<bool> condition)
-			{
-				this.condition = condition;
-			}
-
-			public void Operation(Action operation)
+			internal static void Execute(Func<bool> condition, Action operation)
 			{
 				bool conditionMet = condition();
 				while (conditionMet)
@@ -56,6 +80,16 @@ namespace SimpleLoops
 					operation();
 				}
 			}
+			internal static void ExecuteWithProvidingIndexer(Func<bool> condition, Action<int> operation)
+			{
+				int iteration = 0;
+				bool conditionMet = condition();
+				while (conditionMet)
+				{
+					operation(iteration++);
+				}
+			}
 		}
 	}
+
 }
