@@ -27,6 +27,13 @@ namespace SimpleLoops
 					operation(currentIteration);
 				}
 			}
+			public void Operation(Action operation)
+			{
+				for (; currentIteration < iterations; currentIteration++)
+				{
+					operation();
+				}
+			}
 		}
 	}
 }
