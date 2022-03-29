@@ -6,8 +6,7 @@ namespace SimpleLoops.Loops
 	{
 		internal static void Execute(Func<bool> condition, Action operation)
 		{
-			bool conditionMet = condition();
-			while (conditionMet)
+			while (condition())
 			{
 				operation();
 			}
